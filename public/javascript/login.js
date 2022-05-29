@@ -1,9 +1,9 @@
 async function loginFormHandler(event) {
-  // preventing default pass
   event.preventDefault();
+  // email and possword verification
+  const email = document.querySelector('#email-login').value.trim();
+  const password = document.querySelector('#password-login').value.trim();
 
-  const email = document.querySelector('#email-login').data.trim();
-  const password = document.querySelector('#password-login').data.trim();
   if (email && password) {
     const response = await fetch('/api/users/login', {
       method: 'post',
@@ -13,6 +13,7 @@ async function loginFormHandler(event) {
       }),
       headers: { 'Content-Type': 'application/json' }
     });
+
     if (response.ok) {
       document.location.replace('/dashboard/');
     } else {

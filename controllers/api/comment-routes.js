@@ -1,7 +1,8 @@
+// defining router and importer authorization
 const router = require('express').Router();
-const {Comment} = require('../../models');
+const { Comment } = require('../../models');
 const withAuth = require('../../utils/auth');
-// getting all comments
+// When we are diplaying the page we need to get all comments
 router.get('/', (req, res) => {
   Comment.findAll()
     .then(dbCommentData => res.json(dbCommentData))
@@ -10,7 +11,7 @@ router.get('/', (req, res) => {
       res.status(500).json(err);
     });
 });
-// displaying comments
+// We need to post the comment information
 router.post('/', withAuth, (req, res) => {
   Comment.create({
     comment_text: req.body.comment_text,
@@ -23,7 +24,7 @@ router.post('/', withAuth, (req, res) => {
       res.status(400).json(err);
     });
 });
-// detleting comment by id
+// deleting a comment
 router.delete('/:id', withAuth, (req, res) => {
   Comment.destroy({
     where: {
@@ -32,7 +33,7 @@ router.delete('/:id', withAuth, (req, res) => {
   })
     .then(dbCommentData => {
       if (!dbCommentData) {
-        res.status(404).json({ message: 'no comment with this id' });
+        res.status(404).json({ message: 'no comment found.' });
         return;
       }
       res.json(dbCommentData);

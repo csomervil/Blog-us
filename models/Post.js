@@ -1,10 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
-
-// extending the Post class and returning id with corresponding attributes
+// represting posts:
 class Post extends Model {
-  static posts(body, models) {
-    return models.Post.create({
+  static upvote(body, models) {
+    return models.Vote.create({
       user_id: body.user_id,
       post_id: body.post_id
     }).then(() => {
@@ -14,14 +13,14 @@ class Post extends Model {
         },
         attributes: [
           'id',
-          'post_decription',
+          'post_url',
           'title',
           'created_at',
         ],
         include: [
           {
             model: models.Comment,
-            attributes: ['id', 'post_id', 'user_id', 'comment_text', 'created_at'],
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
             include: {
               model: models.User,
               attributes: ['username']
@@ -33,7 +32,7 @@ class Post extends Model {
   }
 }
 
-// Defining Post class
+// Initilizing posts
 Post.init(
   {
     id: {
@@ -46,7 +45,7 @@ Post.init(
       type: DataTypes.STRING,
       allowNull: false
     },
-    post_description: {
+    post_url: {
       type: DataTypes.STRING,
       allowNull: false,
     },

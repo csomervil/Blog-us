@@ -1,6 +1,7 @@
+// import all models
 const Post = require('./Post');
-const Comment = require('./Comment');
 const User = require('./User');
+const Comment = require('./Comment');
 
 // Associations
 // Comment belongs to Post User

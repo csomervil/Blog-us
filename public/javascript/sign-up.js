@@ -1,6 +1,6 @@
 async function signupFormHandler(event) {
     event.preventDefault();
-  
+    // taking values from all input fields and posting to the database
     const username = document.querySelector('#username-signup').value.trim();
     const email = document.querySelector('#email-signup').value.trim();
     const password = document.querySelector('#password-signup').value.trim();

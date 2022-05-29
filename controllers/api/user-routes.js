@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { User, Post, Comment} = require('../../models');
 
-// getting all users to send to dash
+// geting all users
 router.get('/', (req, res) => {
   User.findAll({
     attributes: { exclude: ['password'] }
@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
       res.status(500).json(err);
     });
 });
-
+// getting the id for the users with corresponding attributes
 router.get('/:id', (req, res) => {
   User.findOne({
     attributes: { exclude: ['password'] },
@@ -22,7 +22,7 @@ router.get('/:id', (req, res) => {
     include: [
       {
         model: Post,
-        attributes: ['id', 'title', 'post_description', 'created_at']
+        attributes: ['id', 'title', 'post_url', 'created_at']
       },
       {
         model: Comment,
@@ -34,7 +34,9 @@ router.get('/:id', (req, res) => {
       },
       {
         model: Post,
-        attributes: ['title']
+        attributes: ['title'],
+        through: Vote,
+        as: 'voted_posts'
       }
     ]
   })
@@ -50,8 +52,7 @@ router.get('/:id', (req, res) => {
       res.status(500).json(err);
     });
 });
-
-// creating a user
+// Relying back that users have been created
 router.post('/', (req, res) => {
   User.create({
     username: req.body.username,
@@ -63,6 +64,7 @@ router.post('/', (req, res) => {
         req.session.user_id = dbUserData.id;
         req.session.username = dbUserData.username;
         req.session.loggedIn = true;
+  
         res.json(dbUserData);
       });
     })
@@ -71,7 +73,7 @@ router.post('/', (req, res) => {
       res.status(500).json(err);
     });
 });
-// searching for email and allow access
+// Defining how the login router should function
 router.post('/login', (req, res) => {
   User.findOne({
     where: {
@@ -79,23 +81,25 @@ router.post('/login', (req, res) => {
     }
   }).then(dbUserData => {
     if (!dbUserData) {
-      res.status(400).json({message: 'This email has no user association' });
+      res.status(400).json({ message: 'No user with that email address!' });
       return;
     }
     const validPassword = dbUserData.checkPassword(req.body.password);
     if (!validPassword) {
-      res.status(400).json({message: 'Password is incorrect!' });
+      res.status(400).json({ message: 'Incorrect password!' });
       return;
     }
+
     req.session.save(() => {
       req.session.user_id = dbUserData.id;
       req.session.username = dbUserData.username;
       req.session.loggedIn = true;
-      res.json({user: dbUserData, message: 'You are logged in' });
+  
+      res.json({ user: dbUserData, message: 'You are now logged in!' });
     });
   });
 });
-// logging out
+
 router.post('/logout', (req, res) => {
   if (req.session.loggedIn) {
     req.session.destroy(() => {
@@ -106,7 +110,7 @@ router.post('/logout', (req, res) => {
     res.status(404).end();
   }
 });
-// updating user by id
+
 router.put('/:id', (req, res) => {
   User.update(req.body, {
     individualHooks: true,
@@ -116,7 +120,7 @@ router.put('/:id', (req, res) => {
   })
     .then(dbUserData => {
       if (!dbUserData) {
-        res.status(404).json({ message: 'No user with this id' });
+        res.status(404).json({ message: 'No user found with this id' });
         return;
       }
       res.json(dbUserData);
@@ -126,14 +130,16 @@ router.put('/:id', (req, res) => {
       res.status(500).json(err);
     });
 });
-// deleting user by id
+// deleting a user
 router.delete('/:id', (req, res) => {
   User.destroy({
-    where: {id: req.params.id}
+    where: {
+      id: req.params.id
+    }
   })
     .then(dbUserData => {
       if (!dbUserData) {
-        res.status(404).json({ message: 'No user with this id' });
+        res.status(404).json({ message: 'No user found with this id' });
         return;
       }
       res.json(dbUserData);
@@ -142,4 +148,6 @@ router.delete('/:id', (req, res) => {
       console.log(err);
       res.status(500).json(err);
     });
-}); module.exports = router;
+});
+
+module.exports = router;

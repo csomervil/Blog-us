@@ -1,9 +1,14 @@
-const {Model, DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const sequelize = require('../config/connection');
-class User extends Model {}
 
-// initializing User class
+class User extends Model {
+  checkPassword(loginPw) {
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
+
+// create fields/columns for User model
 User.init(
   {
     id: {
@@ -35,10 +40,11 @@ User.init(
   {
     // Using hooks to call functions at asychronous lifecycles
     hooks: {
-      async beforeCreate(UserData) {
-        UserData.password = await bcrypt.hash(UserData.password, 10);
-        return UserData;
+      async beforeCreate(newUserData) {
+        newUserData.password = await bcrypt.hash(newUserData.password, 10);
+        return newUserData;
       },
+
       async beforeUpdate(updatedUserData) {
         updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
         return updatedUserData;
@@ -50,4 +56,4 @@ User.init(
     underscored: true,
     modelName: 'user'
   }
-);module.exports = User;
+); module.exports = User;

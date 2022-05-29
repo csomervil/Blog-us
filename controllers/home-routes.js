@@ -76,4 +76,15 @@ router.get('/login', (req, res) => {
     return;
   }
   res.render('login');
-}); module.exports = router;
+}); 
+
+router.get('/sign-up', (req, res) => {
+  if (req.session.loggedIn == true) {
+    res.redirect('/');
+    return;
+  }
+
+  res.render('sign-up');
+});
+
+module.exports = router;

@@ -36,7 +36,7 @@ User.init(
     // Using hooks to call functions at asychronous lifecycles
     hooks: {
       async beforeCreate(UserData) {
-        newUserData.password = await bcrypt.hash(UserData.password, 10);
+        UserData.password = await bcrypt.hash(UserData.password, 10);
         return UserData;
       },
       async beforeUpdate(updatedUserData) {
